@@ -28,7 +28,7 @@ const { auth } = require("../middlewares/auth")
 router.get("/test", async (req, res) => {
   return res.json({
 		success: true,
-		message: "hey backend is working , after live 💕",
+		message: "hey backend is working , after live 💕 💕",
 	});
 
 })
@@ -62,4 +62,3 @@ router.get("/count30users", countUsersLast30Days)
 
 // Export the router for use in the main application
 module.exports = router
-// hey i have updated  something 
