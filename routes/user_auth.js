@@ -24,7 +24,14 @@ const { auth } = require("../middlewares/auth")
 // ********************************************************************************************************
 //                                      Authentication routes
 // ********************************************************************************************************
+// dummy route
+router.get("/test", async (req, res) => {
+  return res.json({
+		success: true,
+		message: "hey backend is working , after live 💕",
+	});
 
+})
 // Route for user login
 router.post("/login", login)
 
@@ -50,8 +57,8 @@ router.post("/reset-password-token", resetPasswordToken)
 router.post("/reset-password", resetPassword)
 
 // count all user 
-router.get("/countusers",countAllUsers)
-router.get("/count30users",countUsersLast30Days)
+router.get("/countusers", countAllUsers)
+router.get("/count30users", countUsersLast30Days)
 
 // Export the router for use in the main application
 module.exports = router
