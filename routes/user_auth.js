@@ -13,6 +13,15 @@ const {
   logout,
   UserSearch
 } = require("../controllers/Auth")
+
+// Import the required controllers and middleware functions
+const {
+    
+  followUser,
+  unfollowUser,
+  getFollowersAndFollowing,
+} = require("../controllers/Follow"); // Import new controller functions
+
 const {
   resetPasswordToken,
   resetPassword,
@@ -41,7 +50,7 @@ router.post("/signup", signup)
 //Route for logout
 router.post("/logout", logout)
 // serch box 
-router.get("/UserSearch", UserSearch)
+router.get("/UserSearch",auth, UserSearch)
 // Route for sending OTP to the user's email
 router.post("/sendotp", sendOTP)
 
@@ -61,6 +70,19 @@ router.post("/reset-password", resetPassword)
 // count all user 
 router.get("/countusers", countAllUsers)
 router.get("/count30users", countUsersLast30Days)
+// ********************************************************************************************************
+//                                      Follow/Unfollow routes
+// ********************************************************************************************************
+// Route for following a user
+router.post("/follow/:userId", auth, followUser); // :userId is the ID of the user to follow
+
+// Route for unfollowing a user
+router.post("/unfollow/:userId", auth, unfollowUser); // :userId is the ID of the user to unfollow
+
+// Route for getting followers and following lists
+router.get("/followers-following/:userId", auth, getFollowersAndFollowing); // :userId is the ID of the user to fetch data for
+
+
 
 // Export the router for use in the main application
 module.exports = router

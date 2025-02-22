@@ -61,10 +61,11 @@ exports.sendOTP = async (req, res) => {
 //signup route handler
 exports.signup = async (req, res) => {
   try {
-    //get data
+    // Get data
     const {
       firstName,
       lastName,
+      username,
       email,
       password,
       confirmPassword,
@@ -73,53 +74,61 @@ exports.signup = async (req, res) => {
       aadhaarNumber,
       otp,
     } = req.body;
+
     // Check if all required fields are provided
     if (
       !firstName ||
       !lastName ||
-      !confirmPassword ||
+      !username ||
       !email ||
-      !aadhaarNumber ||
       !password ||
+      !confirmPassword ||
+      !aadhaarNumber ||
       !otp
     ) {
       return res.status(400).json({
-        message: "All fields are required",
         success: false,
+        message: "All fields are required",
       });
     }
-    //check if user already exist
+
+    // Check if user already exists
     const existingUser = await User.findOne({
-      $or: [{ email }, { aadhaarNumber }],
+      $or: [{ email }, { username }, { aadhaarNumber }],
     });
 
     if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: "User already exists. Please sign in to continue.",
-      });
+      if (existingUser.email === email) {
+        return res.status(400).json({
+          success: false,
+          message: "Email already exists.",
+        });
+      }
+      if (existingUser.username === username) {
+        return res.status(400).json({
+          success: false,
+          message: "Username already exists.",
+        });
+      }
+      if (existingUser.aadhaarNumber === aadhaarNumber) {
+        return res.status(400).json({
+          success: false,
+          message: "Aadhaar number already exists.",
+        });
+      }
     }
 
     // Check if password and confirm password match
     if (password !== confirmPassword) {
       return res.status(400).json({
         success: false,
-        message:
-          "Password and Confirm Password do not match. Please try again.",
+        message: "Password and Confirm Password do not match. Please try again.",
       });
     }
 
     // Find the most recent OTP for the email
     const response = await OTP.find({ email }).sort({ createdAt: -1 }).limit(1);
-    console.log(response);
-    if (response.length === 0) {
-      // OTP not found for the email
-      return res.status(400).json({
-        success: false,
-        message: "The OTP is not valid",
-      });
-    } else if (otp !== response[0].otp) {
-      // Invalid OTP
+    if (response.length === 0 || otp !== response[0].otp) {
       return res.status(400).json({
         success: false,
         message: "The OTP is not valid",
@@ -129,10 +138,6 @@ exports.signup = async (req, res) => {
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    //   // Create the user
-    //   let approved = ""
-    //   approved === "Instructor" ? (approved = false) : (approved = true)
-
     // Create the Additional Profile For User
     const profileDetails = await Profile.create({
       gender: null,
@@ -140,14 +145,17 @@ exports.signup = async (req, res) => {
       about: null,
       contactNumber: null,
     });
+
+    // Create the user
     const user = await User.create({
       firstName,
       lastName,
+      username,
       email,
       contactNumber,
       aadhaarNumber,
       password: hashedPassword,
-      accountType: accountType,
+      accountType,
       additionalDetails: profileDetails._id,
       image: `https://api.dicebear.com/5.x/initials/svg?seed=${firstName} ${lastName}`,
     });
@@ -159,6 +167,14 @@ exports.signup = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
+     // Handle duplicate key error (e.g., duplicate username or email)
+     if (error.code === 11000) {
+      const key = Object.keys(error.keyPattern)[0]; // Get the duplicate key (e.g., "username" or "email")
+      return res.status(400).json({
+        success: false,
+        message: `${key} already exists.`,
+      });
+    }
     return res.status(500).json({
       success: false,
       message: "User cannot be registered, please try again later",
@@ -169,44 +185,44 @@ exports.signup = async (req, res) => {
 // Login controller for authenticating users
 exports.login = async (req, res) => {
   try {
-    // Get email and password from request body
-    const { email, password } = req.body;
+    // Get email/username and password from request body
+    const { emailOrUsername, password } = req.body;
 
-    // Check if email or password is missing
-    if (!email || !password) {
-      // Return 400 Bad Request status code with error message
+    // Check if email/username or password is missing
+    if (!emailOrUsername || !password) {
       return res.status(400).json({
         success: false,
-        message: `Please Fill up All the Required Fields`,
+        message: "Please provide email/username and password",
       });
     }
 
-    // Find user with provided email
-    const user = await User.findOne({ email }).populate("additionalDetails");
+    // Find user by email or username
+    const user = await User.findOne({
+      $or: [{ email: emailOrUsername }, { username: emailOrUsername }],
+    }).populate("additionalDetails");
 
-    // If user not found with provided email
+    // If user not found
     if (!user) {
-      // Return 401 Unauthorized status code with error message
       return res.status(401).json({
         success: false,
-        message: `User is not Registered with Us Please SignUp to Continue`,
+        message: "User is not registered. Please sign up to continue.",
       });
     }
 
-    // Generate JWT token and Compare Password
+    // Compare password
     if (await bcrypt.compare(password, user.password)) {
+      // Generate JWT token
       const token = jwt.sign(
-        { email: user.email, id: user._id, accountType: user.accountType }, //payload
-        process.env.JWT_SECRET, //jwt secret
-        {
-          expiresIn: "7d", //expire
-        }
+        { email: user.email, id: user._id, accountType: user.accountType },
+        process.env.JWT_SECRET,
+        { expiresIn: "3d" }
       );
 
-      // Save token to user document in database
+      // Save token to user document
       user.token = token;
       user.password = undefined;
-      // Set cookie for token and return success response
+
+      // Set cookie and return response
       const options = {
         expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
         httpOnly: true,
@@ -215,24 +231,23 @@ exports.login = async (req, res) => {
         success: true,
         token,
         user,
-        message: `User Login Success`,
+        message: "User login successful",
       });
     } else {
       return res.status(401).json({
         success: false,
-        message: `Password is incorrect`,
+        message: "Password is incorrect",
       });
     }
   } catch (error) {
     console.error(error);
-    // Return 500 Internal Server Error status code with error message
     return res.status(500).json({
       success: false,
-      message: `Login Failure Please Try Again`,
+      message: "Login failed. Please try again later.",
     });
   }
 };
-//change password
+
 // Controller for Changing Password
 exports.changePassword = async (req, res) => {
   try {
@@ -338,6 +353,7 @@ exports.countUsersLast30Days = async (req, res) => {
     res.status(500).json({ error: "Server error, please try again later" });
   }
 };
+
 //  logout controller
 exports.logout = async (req, res) => {
   try {
@@ -363,18 +379,46 @@ exports.logout = async (req, res) => {
 };
 
 
-//  search 
-exports.UserSearch = async (req , res) => {
+exports.UserSearch = async (req, res) => {
   const searchTerm = req.query.search || '';
+  const page = parseInt(req.query.page) || 1; // Default to page 1
+  const limit = parseInt(req.query.limit) || 10; // Default to 10 results per page
+
   try {
-    // MongoDB query for case-insensitive starts with search:
-    const users = await User.find({
-      firstName: { $regex: new RegExp(`^${searchTerm}`, 'i') } // 'i' for case-insensitive
+    // MongoDB query for case-insensitive partial match on username
+    const users = await User.find(
+      { username: { $regex: searchTerm, $options: "i" } }, // Case-insensitive partial match
+      { username: 1, firstName: 1, lastName: 1, image: 1 } // Project only necessary fields
+    )
+      .skip((page - 1) * limit) // Pagination: skip previous pages
+      .limit(limit); // Limit results per page
+
+    // Count total matching users for pagination metadata
+    const totalUsers = await User.countDocuments({
+      username: { $regex: searchTerm, $options: "i" },
     });
 
-    res.json(users);
+    // Calculate total pages
+    const totalPages = Math.ceil(totalUsers / limit);
+
+    // Return response with pagination metadata
+    res.status(200).json({
+      success: true,
+      message: "Users fetched successfully",
+      data: users,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalUsers,
+        limit,
+      },
+    });
   } catch (error) {
     console.error("Error fetching users from MongoDB:", error);
-    res.status(500).json({ error: 'Failed to fetch users' });
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch users",
+      error: error.message,
+    });
   }
 };

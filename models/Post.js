@@ -5,7 +5,7 @@ const postSchema = new mongoose.Schema({
     type: String,
     trim: true,
   },
-  videoUrl: {
+  postUrl: {
     type: String,
   },
   CommentsAndLike: [
@@ -14,9 +14,6 @@ const postSchema = new mongoose.Schema({
       ref: "CommentsAndLike",
     },
   ],
-  thumbnail: {
-    type: String,
-  },
   status: {
     type: String,
     enum: ["Draft", "Published"],

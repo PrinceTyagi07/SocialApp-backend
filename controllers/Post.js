@@ -11,12 +11,10 @@ exports.createPost = async (req, res) => {
     const userId = req.user.id;
     // get post data
     let { description, status } = req.body;
-    const video = req.files.video
-    // Get thumbnail image from request files
-    const thumbnail = req.files.thumbnailImage;
-
+    const postdata = req.files.postdata
+//video --> chnage to --> postdata
     //validate
-    if (!description || !video || !thumbnail) {
+    if (!description || !postdata) {
       return res.status(400).json({
         success: false,
         message: "All Fields are Mandatory",
@@ -35,16 +33,9 @@ exports.createPost = async (req, res) => {
     }
 
 
-    // Upload the Thumbnail to Cloudinary
-    const thumbnailImage = await uploadImageToCloudinary(
-      thumbnail,
-      process.env.FOLDER_NAME
-    );
-    console.log(thumbnailImage);
-
     // Upload the video file to Cloudinary
     const uploadDetails = await uploadImageToCloudinary(
-      video,
+      postdata,
       process.env.FOLDER_NAME
     );
     console.log(uploadDetails)
@@ -52,8 +43,7 @@ exports.createPost = async (req, res) => {
 
     const newPost = await Post.create({
       description,
-      videoUrl: uploadDetails.secure_url,
-      thumbnail: thumbnailImage.secure_url,
+      postdataUrl: uploadDetails.secure_url,
       status: status,
       creatorId: creatorDetails._id,
     });
@@ -96,29 +86,19 @@ exports.editPost = async (req, res) => {
       return res.status(404).json({ error: "Post not found" });
     }
 
-    // If Thumbnail Image is found, update it
-    if (req.files) {
-      console.log("thumbnail update");
-      const thumbnail = req.files.thumbnailImage;
-      const thumbnailImage = await uploadImageToCloudinary(
-        thumbnail,
-        process.env.FOLDER_NAME
-      );
-      post.thumbnail = thumbnailImage.secure_url;
-    }
     // Update only the fields that are present in the request body
     for (const key in updates) {
       if (updates.hasOwnProperty(key)) {
         post[key] = updates[key];
       }
     }
-    if (req.files && req.files.video !== undefined) {
-      const video = req.files.video
+    if (req.files && req.files.postdata !== undefined) {
+      const postdata = req.files.postdata
       const uploadDetails = await uploadImageToCloudinary(
-        video,
+        postdata,
         process.env.FOLDER_NAME
       )
-      Post.videoUrl = uploadDetails.secure_url
+      Post.postdataUrl = uploadDetails.secure_url
 
     }
 
@@ -133,6 +113,7 @@ exports.editPost = async (req, res) => {
         },
       })
       .populate("description")
+      .populate("username")
       .populate({
         path: "CommentsAndLike",
         populate: {
@@ -168,6 +149,7 @@ exports.getAllPosts = async (req, res) => {
       }
     )
       .populate("creatorId")
+      .populate("username")
       .exec();
 
     return res.status(200).json({

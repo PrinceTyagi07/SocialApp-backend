@@ -77,3 +77,34 @@ exports.isVisitor = async (req, res, next) => {
 			.json({ success: false, message: `User Role Can't be Verified` });
 	}
 };
+
+exports.validateSearchParams = (req, res, next) => {
+	const { search, page, limit } = req.query;
+  
+	// Validate search term (optional, but ensure it's a string)
+	if (search && typeof search !== "string") {
+	  return res.status(400).json({
+		success: false,
+		message: "Search term must be a string",
+	  });
+	}
+  
+	// Validate page (must be a positive integer)
+	if (page && (isNaN(page) || parseInt(page) < 1)) {
+	  return res.status(400).json({
+		success: false,
+		message: "Page must be a positive integer",
+	  });
+	}
+  
+	// Validate limit (must be a positive integer)
+	if (limit && (isNaN(limit) || parseInt(limit) < 1)) {
+	  return res.status(400).json({
+		success: false,
+		message: "Limit must be a positive integer",
+	  });
+	}
+  
+	next();
+  };
+  
