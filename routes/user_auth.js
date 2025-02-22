@@ -10,7 +10,8 @@ const {
   changePassword,
   countAllUsers,
   countUsersLast30Days,
-  logout
+  logout,
+  UserSearch
 } = require("../controllers/Auth")
 const {
   resetPasswordToken,
@@ -39,7 +40,8 @@ router.post("/login", login)
 router.post("/signup", signup)
 //Route for logout
 router.post("/logout", logout)
-
+// serch box 
+router.get("/UserSearch", UserSearch)
 // Route for sending OTP to the user's email
 router.post("/sendotp", sendOTP)
 

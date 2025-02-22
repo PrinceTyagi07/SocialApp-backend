@@ -361,3 +361,20 @@ exports.logout = async (req, res) => {
     });
   }
 };
+
+
+//  search 
+exports.UserSearch = async (req , res) => {
+  const searchTerm = req.query.search || '';
+  try {
+    // MongoDB query for case-insensitive starts with search:
+    const users = await User.find({
+      firstName: { $regex: new RegExp(`^${searchTerm}`, 'i') } // 'i' for case-insensitive
+    });
+
+    res.json(users);
+  } catch (error) {
+    console.error("Error fetching users from MongoDB:", error);
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+};
