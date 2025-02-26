@@ -143,12 +143,13 @@ exports.getAllPosts = async (req, res) => {
     const allPosts = await Post.find(
       { status: "Published" },
       {
+
         creator: true,
         CommentsAndLike: true,
       }
     )
       .populate("creatorId")
-      .populate("username")
+      // .populate("username")
       .exec();
 
     return res.status(200).json({
