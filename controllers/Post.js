@@ -43,7 +43,7 @@ exports.createPost = async (req, res) => {
 
     const newPost = await Post.create({
       description,
-      postdataUrl: uploadDetails.secure_url,
+      postUrl: uploadDetails.secure_url,
       status: status,
       creatorId: creatorDetails._id,
     });
