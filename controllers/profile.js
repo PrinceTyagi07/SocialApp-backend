@@ -97,7 +97,9 @@ exports.getAllUserDetails = async (req, res) => {
     const userDetails = await User.findById(id)
       .populate("additionalDetails")
       .exec()
-    console.log(userDetails)
+
+      console.log(userDetails)
+      
     res.status(200).json({
       success: true,
       message: "User Data fetched successfully",
