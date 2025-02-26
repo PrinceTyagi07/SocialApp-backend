@@ -143,7 +143,8 @@ exports.getAllPosts = async (req, res) => {
     const allPosts = await Post.find(
       { status: "Published" },
       {
-
+        description: true,
+        postUrl:true,
         creator: true,
         CommentsAndLike: true,
       }
