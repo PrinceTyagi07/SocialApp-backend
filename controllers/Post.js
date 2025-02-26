@@ -12,7 +12,7 @@ exports.createPost = async (req, res) => {
     // get post data
     let { description, status } = req.body;
     const postdata = req.files.postdata
-//video --> chnage to --> postdata
+    //video --> chnage to --> postdata
     //validate
     if (!description || !postdata) {
       return res.status(400).json({
@@ -214,21 +214,23 @@ exports.getCreatorPosts = async (req, res) => {
     const CreatorPosts = await User.findById(
       Creator,
     )
-      .populate({
-        path: "posts",
-        populate: [{
-          path: "CommentsAndLike",
-        },]
-      })
-      .exec();
+    .populate({
+      path: "posts",
+      populate: {
+        path: "CommentsAndLike",
+      }
+    })
+    .populate("additionalDetails")
+    .exec();
+    
 
-      
+
     // Return the Posts
     res.status(200).json({
       success: true,
       data: CreatorPosts,
     });
-    
+
   } catch (error) {
     console.error(error);
     res.status(500).json({
