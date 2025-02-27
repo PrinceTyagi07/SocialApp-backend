@@ -17,7 +17,9 @@ const {
 // Comment Controllers Import
 const {
   createComment,
-  getAllCommentsLike,
+  toggleLike,
+  getCommentsForPost,
+  
 } = require("../controllers/CommentsandLike")
 
 // Importing Middlewares
@@ -51,7 +53,14 @@ router.delete("/deletePost", deletePost)
 // ********************************************************************************************************
 //                                      Comment And Like
 // ********************************************************************************************************
-router.post("/createComment", auth, isVisitor, createComment)
-router.get("/getAllCommentsLike", getAllCommentsLike)
+// Create a comment on a post
+router.post("/createComment", auth, isVisitor, createComment);
+
+// Toggle like/unlike a post
+router.post("/toggleLike", auth, isVisitor, toggleLike);
+
+// Get all comments for a specific post
+router.get("/:postId/comments", getCommentsForPost);
+// router.get("/getAllCommentsLike", getAllCommentsLike)
 
 module.exports = router
