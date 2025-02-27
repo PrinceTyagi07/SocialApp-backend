@@ -8,11 +8,11 @@ const CommentsAndLikeSchema = new mongoose.Schema({
     },
     like:{
         type:String,
-        required:true,
+        // required:true,
     },
     comment:{
         type:String,
-        required:true,
+        // required:true,
     }
 });
 
