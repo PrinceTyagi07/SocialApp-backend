@@ -1,19 +1,29 @@
 const mongoose = require("mongoose");
 
 const CommentsAndLikeSchema = new mongoose.Schema({
-    user:{
+    user: {
         type: mongoose.Schema.Types.ObjectId,
-        required:true,
-        ref:"User",
+        required: true,
+        ref: "User",
     },
-    like:{
-        type:String,
-        // required:true,
+    post:
+    {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Post",
+        required: true,
     },
-    comment:{
-        type:String,
+    // like: {
+    //     type: String,
+    //     // required:true,
+    // },
+    like: {
+        type: Boolean, // Boolean type for true/false
+        default: false,
+    },
+    comment: {
+        type: String,
         // required:true,
     }
 });
 
-module.exports = mongoose.model("CommentsAndLike",CommentsAndLikeSchema);
+module.exports = mongoose.model("CommentsAndLike", CommentsAndLikeSchema);
