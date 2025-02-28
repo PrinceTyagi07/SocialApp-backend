@@ -128,7 +128,7 @@ exports.getCommentsForPost = async (req, res) => {
       post: postId,
       comment: { $ne: null },
     })
-      .populate("user", "firstName lastName email image")
+      .populate("user", "firstName lastName email image username")
       .exec();
 
     return res.status(200).json({
