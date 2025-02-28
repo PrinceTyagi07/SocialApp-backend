@@ -144,3 +144,30 @@ exports.getCommentsForPost = async (req, res) => {
     });
   }
 };
+
+
+// get all comment and like 
+exports.getAllCommentsLike = async (req, res) => {
+try {
+  const { id } = req.params;
+  const commentAndLike = await CommentsAndLike.findById(id).populate("user");
+
+  if (!commentAndLike) {
+    return res.status(404).json({
+      success: false,
+      message: "Comment or Like not found",
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    data: commentAndLike,
+  });
+} catch (error) {
+  console.error(error);
+  return res.status(500).json({
+    success: false,
+    message: "Failed to fetch comment or like",
+    error: error.message,
+  });
+}}

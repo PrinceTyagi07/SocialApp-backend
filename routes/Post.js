@@ -19,6 +19,7 @@ const {
   createComment,
   toggleLike,
   getCommentsForPost,
+  getAllCommentsLike
   
 } = require("../controllers/CommentsandLike")
 
@@ -61,6 +62,6 @@ router.post("/toggleLike", auth, isVisitor, toggleLike);
 
 // Get all comments for a specific post
 router.get("/:postId/comments", getCommentsForPost);
-// router.get("/getAllCommentsLike", getAllCommentsLike)
+router.get("/getAllCommentsLike/:id", getAllCommentsLike)
 
 module.exports = router
