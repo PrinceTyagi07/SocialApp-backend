@@ -207,9 +207,6 @@ exports.getCreatorPosts = async (req, res) => {
   try {
     // Get the instructor ID from the authenticated user or request body
 
-    //change
-    // const {Creator} = req.body;
-
     const Creator = req.query.Creator; // Access from query parameter
     // Find all posts belonging to the creator
     const CreatorPosts = await User.findById(
@@ -258,7 +255,7 @@ exports.deletePost = async (req, res) => {
 
     await User.findByIdAndUpdate(creator, {
       $pull: { posts: postId },
-    });
+    },{new:true});
 
     // Delete the post
     await Post.findByIdAndDelete(postId);

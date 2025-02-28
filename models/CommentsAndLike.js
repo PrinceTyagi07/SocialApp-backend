@@ -12,10 +12,7 @@ const CommentsAndLikeSchema = new mongoose.Schema({
         ref: "Post",
         required: true,
     },
-    // like: {
-    //     type: String,
-    //     // required:true,
-    // },
+   
     like: {
         type: Boolean, // Boolean type for true/false
         default: false,

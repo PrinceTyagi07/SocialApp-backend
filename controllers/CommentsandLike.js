@@ -25,14 +25,17 @@ exports.createComment = async (req, res) => {
     });
 
     // Add the comment to the post
-    await Post.findByIdAndUpdate(postId, {
-      $push: { CommentsAndLike: newComment._id },
-    });
+    const updatedPost = await Post.findByIdAndUpdate(
+      postId,
+      { $push: { CommentsAndLike: newComment._id } },
+      { new: true } // Added new: true here
+    );
 
     return res.status(201).json({
       success: true,
       message: "Comment added successfully",
       comment: newComment,
+      updatedPost, // Added updatedPost to response
     });
   } catch (error) {
     console.error(error);
@@ -59,42 +62,52 @@ exports.toggleLike = async (req, res) => {
     }
 
     // Check if user has already liked the post
-    const existingLike = await CommentsAndLike.findOne({ user: userId, post: postId, like: true });
+    const existingLike = await CommentsAndLike.findOne({
+      user: userId,
+      post: postId,
+      like: true, // Corrected to boolean true
+    });
 
     if (existingLike) {
       // Unlike the post - Remove from CommentsAndLike collection
       await CommentsAndLike.findByIdAndDelete(existingLike._id);
 
       // Remove like from Post schema array
-      await Post.findByIdAndUpdate(postId, {
-        $pull: { CommentsAndLike: existingLike._id },
-      });
+      const updatedPost = await Post.findByIdAndUpdate(
+        postId,
+        { $pull: { CommentsAndLike: existingLike._id } },
+        { new: true } // Added new: true here
+      );
     } else {
       // Like the post - Add to CommentsAndLike collection
       const newLike = await CommentsAndLike.create({
-        like: true,
+        like: true, // Corrected to boolean true
         user: userId,
         post: postId,
       });
 
       // Add like reference to Post schema array
-      await Post.findByIdAndUpdate(postId, {
-        $push: { CommentsAndLike: newLike._id },
-      });
+      const updatedPost = await Post.findByIdAndUpdate(
+        postId,
+        { $push: { CommentsAndLike: newLike._id } },
+        { new: true } // Added new: true here
+      );
     }
 
-    // Get updated like count (based on Post's CommentsAndLike array length)
-    const updatedPost = await Post.findById(postId).populate("CommentsAndLike");
-
-    // const likeCount = updatedPost.CommentsAndLike.filter((cl) => cl.like === "true").length;
-    
-    // new logic
-    const likeCount =await CommentsAndLike.countDocuments();
+    // Get updated like count efficiently
+    const likeCount = await CommentsAndLike.countDocuments({
+      post: postId,
+      like: true, // Corrected to boolean true
+    });
 
     return res.status(200).json({
       success: true,
-      message: existingLike ? "Post unliked successfully" : "Post liked successfully",
-      likeCount,
+      message: existingLike
+        ? "Post unliked successfully"
+        : "Post liked successfully",
+        likeCount,
+        existingLike
+      //updatedPost, // can add updatedPost to response if needed.
     });
   } catch (error) {
     console.error(error);
@@ -106,14 +119,15 @@ exports.toggleLike = async (req, res) => {
   }
 };
 
-
-
 // API to get all comments for a specific post
 exports.getCommentsForPost = async (req, res) => {
   try {
     const { postId } = req.params;
 
-    const comments = await CommentsAndLike.find({ post: postId, comment: { $ne: null } })
+    const comments = await CommentsAndLike.find({
+      post: postId,
+      comment: { $ne: null },
+    })
       .populate("user", "firstName lastName email image")
       .exec();
 
