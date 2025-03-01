@@ -96,11 +96,14 @@ exports.getAllUserDetails = async (req, res) => {
     const id = req.params.id
     const userDetails = await User.findById(id)
       .populate("additionalDetails")
-      .populate("posts")
+      .populate({
+        path: "posts"
+          .populate("CommentsAndLike")
+      })
       .exec()
 
-      console.log(userDetails)
-      
+    console.log(userDetails)
+
     res.status(200).json({
       success: true,
       message: "User Data fetched successfully",
