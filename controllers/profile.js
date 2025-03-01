@@ -95,12 +95,15 @@ exports.getAllUserDetails = async (req, res) => {
   try {
     const id = req.params.id
     const userDetails = await User.findById(id)
-      .populate("additionalDetails")
-      .populate({
-        path: "posts"
-          .populate("CommentsAndLike")
-      })
-      .exec()
+  .populate("additionalDetails")
+  .populate({
+    path: "posts",
+    populate: {
+      path: "CommentsAndLike",
+    },
+  })
+  .exec();
+
 
     console.log(userDetails)
 
