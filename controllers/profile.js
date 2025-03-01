@@ -93,7 +93,7 @@ exports.deleteAccount = async (req, res) => {
 
 exports.getAllUserDetails = async (req, res) => {
   try {
-    const id = req.user.id
+    const id = req.params.id
     const userDetails = await User.findById(id)
       .populate("additionalDetails")
       .exec()
