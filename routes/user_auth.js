@@ -38,7 +38,7 @@ const { auth } = require("../middlewares/auth")
 router.get("/test", async (req, res) => {
   return res.json({
 		success: true,
-		message: "hey backend is working , after live 💕 💕",
+		message: "hey backend is working , after live 💕",
 	});
 
 })

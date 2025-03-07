@@ -65,7 +65,7 @@ exports.signup = async (req, res) => {
     const {
       firstName,
       lastName,
-      username,
+      // username,
       email,
       password,
       confirmPassword,
@@ -79,7 +79,7 @@ exports.signup = async (req, res) => {
     if (
       !firstName ||
       !lastName ||
-      !username ||
+      // !username ||
       !email ||
       !password ||
       !confirmPassword ||
