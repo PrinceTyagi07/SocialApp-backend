@@ -150,12 +150,12 @@ exports.signup = async (req, res) => {
     const user = await User.create({
       firstName,
       lastName,
-      username,
+      // username,
       email,
       contactNumber,
       aadhaarNumber,
       password: hashedPassword,
-      accountType,
+      // accountType,
       additionalDetails: profileDetails._id,
       image: `https://api.dicebear.com/5.x/initials/svg?seed=${firstName} ${lastName}`,
     });
