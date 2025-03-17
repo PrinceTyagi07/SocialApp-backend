@@ -6,7 +6,6 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js"
-   
   },
   "keywords": [],
   "author": "KK",
@@ -23,6 +22,7 @@
     "express": "^4.21.2",
     "express-fileupload": "^1.5.1",
     "jsonwebtoken": "^9.0.2",
+    "moment": "^2.30.1",
     "mongoose": "^8.10.0",
     "nodemailer": "^6.10.0",
     "nodemon": "^3.1.9",

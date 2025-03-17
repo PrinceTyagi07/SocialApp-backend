@@ -13,22 +13,22 @@ const UserSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    // username: {
-    //   type: String,
-    //   required: true,
-    //   unique: true,
-    //   trim: true,
-    //   index: true,
-    //   minlength: [3, "Username must be at least 3 characters long."], // Minimum length
-    //   maxlength: [20, "Username cannot exceed 20 characters."], // Maximum length
-    //   validate: {
-    //     validator: function (v) {
-    //       // Allow only alphanumeric characters, underscores, and dots
-    //       return /^[a-zA-Z0-9_.]+$/.test(v);
-    //     },
-    //     message: "Username can only contain letters, numbers, underscores, and dots.",
-    //   },
-    // },
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      index: true,
+      minlength: [3, "Username must be at least 3 characters long."], // Minimum length
+      maxlength: [20, "Username cannot exceed 20 characters."], // Maximum length
+      validate: {
+        validator: function (v) {
+          // Allow only alphanumeric characters, underscores, and dots
+          return /^[a-zA-Z0-9_.]+$/.test(v);
+        },
+        message: "Username can only contain letters, numbers, underscores, and dots.",
+      },
+    },
     email: {
       type: String,
       required: true,

@@ -10,6 +10,7 @@ const cookieParser = require('cookie-parser');
 const { cloudinaryConnect } = require("./dbconfig/cloudinary");
 const fileUpload = require("express-fileupload");
 const dotenv = require("dotenv");
+const Analytics = require("./routes/Analytics");
 
 // // Use cookie-parser middleware
 app.use(cookieParser());
@@ -44,6 +45,7 @@ app.use("/api/v1/auth", userRoutes);
 app.use("/api/v1/profile", profileRoutes);
 app.use("/api/v1/post", postRoutes);
 app.use("/api/v1/reach", contactUsRoute);
+app.use("/api/v1/analytics", Analytics);
 
 
 // Testing the server

@@ -12,6 +12,7 @@ const {
   editPost,
   getCreatorPosts,
   deletePost,
+  getRecentPosts
 } = require("../controllers/Post")
 
 // Comment Controllers Import
@@ -19,7 +20,8 @@ const {
   createComment,
   toggleLike,
   getCommentsForPost,
-  getAllCommentsLike
+  getAllCommentsLike,
+  getTotalComments
   
 } = require("../controllers/CommentsandLike")
 
@@ -40,6 +42,7 @@ router.get("/getCreatorPosts", auth, isVisitor, getCreatorPosts)
 router.get("/getAllPosts", getAllPosts)
 // Get Details for a Specific Courses
 router.get("/getPostdetails", getPostdetails)
+router.get("/getRecentPosts", getRecentPosts)
 // Delete a Course
 router.delete("/deletePost", deletePost)
 
@@ -63,5 +66,6 @@ router.post("/toggleLike", auth, isVisitor, toggleLike);
 // Get all comments for a specific post
 router.get("/:postId/comments", getCommentsForPost);
 router.get("/getAllCommentsLike/:id", getAllCommentsLike)
+router.get("/getTotalComments",getTotalComments )
 
 module.exports = router

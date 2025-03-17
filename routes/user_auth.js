@@ -25,9 +25,16 @@ const {
 const {
   resetPasswordToken,
   resetPassword,
+  
 } = require("../controllers/Resetpassword")
 
 const { auth } = require("../middlewares/auth")
+
+const {
+  startSession,
+  endSession,
+  getTotalEngagementTime
+}= require("../controllers/Engagement")
 
 // Routes for Login, Signup, and Authentication
 
@@ -81,6 +88,10 @@ router.post("/unfollow/:userId", auth, unfollowUser); // :userId is the ID of th
 
 // Route for getting followers and following lists
 router.get("/followers-following/:userId", auth, getFollowersAndFollowing); // :userId is the ID of the user to fetch data for
+// track the user engagement 
+router.post("/engagement/start", startSession)
+router.post("/engagement/end", endSession)
+router.get("/engagement/time",getTotalEngagementTime) // yaha auth add krna h 
 
 
 

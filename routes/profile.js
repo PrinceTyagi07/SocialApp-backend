@@ -6,6 +6,7 @@ const {
   updateProfile,
   getAllUserDetails,
   updateDisplayPicture,
+  getUserById
 } = require("../controllers/profile")
 
 // ********************************************************************************************************
@@ -15,6 +16,8 @@ const {
 router.delete("/deleteProfile", auth, deleteAccount)
 router.put("/updateProfile", auth, updateProfile)
 router.get("/getUserDetails/:id", auth, getAllUserDetails)
+// get user by  id  
+router.get("/getUser/:id",getUserById )
 // Get Enrolled Courses
 // router.get("/getEnrolledCourses", auth, getEnrolledCourses)
 router.put("/updateDisplayPicture", auth, updateDisplayPicture)

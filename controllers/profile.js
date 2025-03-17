@@ -95,14 +95,14 @@ exports.getAllUserDetails = async (req, res) => {
   try {
     const id = req.params.id
     const userDetails = await User.findById(id)
-  .populate("additionalDetails")
-  .populate({
-    path: "posts",
-    populate: {
-      path: "CommentsAndLike",
-    },
-  })
-  .exec();
+      .populate("additionalDetails")
+      .populate({
+        path: "posts",
+        populate: {
+          path: "CommentsAndLike",
+        },
+      })
+      .exec();
 
 
     console.log(userDetails)
@@ -119,6 +119,36 @@ exports.getAllUserDetails = async (req, res) => {
     })
   }
 }
+// get user by id 
+exports.getUserById = async (req, res) => {
+  try {
+    const { id } = req.params; // Extract user ID from request parameters
+
+    const userDetails = await User.findById(id)
+      .populate("additionalDetails")
+      .exec();
+    console.log(userDetails)
+    if (!userDetails) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "User data fetched successfully",
+      data: userDetails,
+    });
+
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error, please try again later",
+    });
+  }
+};
 
 exports.updateDisplayPicture = async (req, res) => {
   try {

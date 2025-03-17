@@ -140,6 +140,7 @@ exports.editPost = async (req, res) => {
 // Get Post List
 exports.getAllPosts = async (req, res) => {
   try {
+     const PostCount = await Post.countDocuments();
     const allPosts = await Post.find(
       { status: "Published" },
       {
@@ -155,6 +156,7 @@ exports.getAllPosts = async (req, res) => {
 
     return res.status(200).json({
       success: true,
+      PostCount: PostCount,
       data: allPosts,
     });
   } catch (error) {
@@ -162,6 +164,51 @@ exports.getAllPosts = async (req, res) => {
     return res.status(404).json({
       success: false,
       message: `Can't Fetch Post Data`,
+      error: error.message,
+    });
+  }
+};
+// get recent posts
+exports.getRecentPosts = async (req, res) => { 
+  try {
+    // Get the current date and subtract 20 days
+    const twentyDaysAgo = new Date();
+    twentyDaysAgo.setDate(twentyDaysAgo.getDate() - 20);
+
+    // Count the number of recent posts
+    const postCount = await Post.countDocuments({
+      createdAt: { $gte: twentyDaysAgo },
+      status: "Published",
+    });
+
+    // Fetch posts created in the last 20 days with "Published" status
+    const recentPosts = await Post.find(
+      { 
+        createdAt: { $gte: twentyDaysAgo }, 
+        status: "Published"
+      },
+      {
+        description: true,
+        postUrl: true,
+        creator: true,
+        CommentsAndLike: true,
+      }
+    )
+    .populate("creatorId")
+    .populate("CommentsAndLike")
+    .exec();
+
+    return res.status(200).json({
+      success: true,
+      PostCount: postCount,
+      data: recentPosts,
+    });
+
+  } catch (error) {
+    console.error("Error fetching recent posts:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Can't Fetch Recent Posts",
       error: error.message,
     });
   }

@@ -171,3 +171,21 @@ try {
     error: error.message,
   });
 }}
+
+exports.getTotalComments = async (req, res) => {
+  try {
+    const totalComments = await CommentsAndLike.countDocuments();
+
+    return res.status(200).json({
+      success: true,
+      totalComments,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to count comments",
+      error: error.message,
+    });
+  }
+};

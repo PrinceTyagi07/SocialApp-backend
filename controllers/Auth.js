@@ -65,7 +65,7 @@ exports.signup = async (req, res) => {
     const {
       firstName,
       lastName,
-      // username,
+      username,
       email,
       password,
       confirmPassword,
@@ -74,12 +74,12 @@ exports.signup = async (req, res) => {
       aadhaarNumber,
       otp,
     } = req.body;
-
+    console.log(req.body);
     // Check if all required fields are provided
     if (
       !firstName ||
       !lastName ||
-      // !username ||
+      !username ||
       !email ||
       !password ||
       !confirmPassword ||
@@ -150,12 +150,12 @@ exports.signup = async (req, res) => {
     const user = await User.create({
       firstName,
       lastName,
-      // username,
+      username,
       email,
       contactNumber,
       aadhaarNumber,
       password: hashedPassword,
-      // accountType,
+      accountType,
       additionalDetails: profileDetails._id,
       image: `https://api.dicebear.com/5.x/initials/svg?seed=${firstName} ${lastName}`,
     });
@@ -167,8 +167,8 @@ exports.signup = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-     // Handle duplicate key error (e.g., duplicate username or email)
-     if (error.code === 11000) {
+    // Handle duplicate key error (e.g., duplicate username or email)
+    if (error.code === 11000) {
       const key = Object.keys(error.keyPattern)[0]; // Get the duplicate key (e.g., "username" or "email")
       return res.status(400).json({
         success: false,
@@ -322,7 +322,7 @@ exports.countAllUsers = async (req, res) => {
 
     // Send the count as a response
     res.status(200).json({
-      message: "Total user count",
+      message: "Total Users",
       count: userCount,
     });
   } catch (error) {
@@ -338,21 +338,31 @@ exports.countUsersLast30Days = async (req, res) => {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    // Count the number of users created in the last 30 days
-    const userCount = await User.countDocuments({
-      createdAt: { $gte: thirtyDaysAgo }, // Filter users created after 30 days ago
+    // Fetch users created in the last 30 days with accountType "Visitor"
+    const users = await User.find(
+      { createdAt: { $gte: thirtyDaysAgo }, accountType: "Visitor" },
+      { _id: 1, username: 1, image: 1 } // Retrieve only ID, username, and image
+    );
+
+    // Send the count and user details as a response
+    res.status(200).json({
+      message: "User details fetched successfully",
+      count: users.length,
+      users: users.map(user => ({
+        id: user._id,
+        username: user.username,
+        image: user.image
+      })),
     });
 
-    // Send the count as a response
-    res.status(200).json({
-      message: "Total users created in the last 30 days",
-      count: userCount,
-    });
   } catch (error) {
-    console.error("Error counting users in the last 30 days:", error);
+    console.error("Error fetching user details:", error);
     res.status(500).json({ error: "Server error, please try again later" });
   }
+
+
 };
+
 
 //  logout controller
 exports.logout = async (req, res) => {
