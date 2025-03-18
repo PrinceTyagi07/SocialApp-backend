@@ -10,53 +10,60 @@ require("dotenv").config();
 //send OTP
 exports.sendOTP = async (req, res) => {
   try {
-    //fetch email from request ki body
+    // Fetch email from request body
     const { email } = req.body;
-    //check if already exist
+
+    // Check if the user already exists
     const checkUserPresent = await User.findOne({ email });
     if (checkUserPresent) {
       return res.status(400).json({
         success: false,
-        message: "User already exist",
+        message: "User already exists",
       });
     }
 
-    // otp generate
-    var otp = otpGenerator.generate(6, {
+    // Generate OTP
+    let otp = otpGenerator.generate(6, {
       upperCaseAlphabets: false,
       specialChars: false,
       lowerCaseAlphabets: false,
     });
     console.log("OTP Generated", otp);
 
-    //Check OTP should be Unique worst code find library that always give unique otp
-    let result = await OTP.findOne({ otp: otp });
-    while (result) {
+    // Ensure OTP is unique
+    let existingOTP = await OTP.findOne({ otp });
+    while (existingOTP) {
       otp = otpGenerator.generate(6, {
         upperCaseAlphabets: false,
         specialChars: false,
         lowerCaseAlphabets: false,
       });
-      result = await OTP.findOne({ otp: otp });
+      existingOTP = await OTP.findOne({ otp });
     }
-    //save otp in database
+
+    // Save OTP in the database
     const otpPayload = { email, otp };
-    const otpBody = await OTP.create(otpPayload);
-    console.log(otpBody);
+    const otpBody = await OTP.create(otpPayload); // Ensure await is used
+    if (!otpBody) {
+      throw new Error("Failed to save OTP in the database");
+    }
+
+    console.log("OTP Saved:", otpBody);
 
     res.status(200).json({
       success: true,
-      message: "OTP send successfully",
+      message: "OTP sent successfully",
       otp,
     });
   } catch (error) {
-    console.log(error);
+    console.error("Error:", error.message);
     res.status(500).json({
-      seccess: false,
-      message: "Message sending problem Server Error",
+      success: false, // Fixed typo from "seccess" to "success"
+      message: "Message sending problem: Server Error",
     });
   }
 };
+
 
 //signup route handler
 exports.signup = async (req, res) => {
