@@ -10,10 +10,10 @@ const OTPSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-    createdAt:{
-        type:Date,
-        default:Date.now(),
-        expires:60 *5,
+    createdAt: {
+        type: Date,
+        default: Date.now, // Use function reference, not execution
+        expires: 60 * 5, // 5 minutes
     }
 });
 

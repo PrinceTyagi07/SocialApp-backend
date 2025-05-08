@@ -54,11 +54,11 @@ const UserSchema = new mongoose.Schema(
     accountType: {
       type: String,
       enum: ["Admin", "Visitor"],
-      required: true,
+      // required: true,
     },
     additionalDetails: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
+      // required: true,
       ref: "Profile",
     },
     token: {
